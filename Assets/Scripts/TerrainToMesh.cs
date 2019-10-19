@@ -17,7 +17,7 @@ public class TerrainToMesh : MonoBehaviour
 
             Mesh mesh = new Mesh();
             Vector3[] vertices = MakeVerticesGrid(sampleSize, width);
-            float[] heightMap = getHeightMap(sampleSize, d);
+            float[] heightMap = getHeightMap(sampleSize, d, width);
 
             HeightMapToGrid(heightMap, vertices);
 
@@ -59,7 +59,7 @@ public class TerrainToMesh : MonoBehaviour
         return vertices;
     }
 
-   
+
     /// <summary>
     /// Assigns HeightMap for vertices grid
     /// </summary>
@@ -88,19 +88,20 @@ public class TerrainToMesh : MonoBehaviour
     /// <param name="sampleSize">How many samples we take per line</param>
     /// <param name="d">TerrainData we want the heightMap from</param>
     /// <returns></returns>
-    public static float[] getHeightMap(int sampleSize, TerrainData d)
+    public static float[] getHeightMap(int sampleSize, TerrainData d, int width)
     {
         int calcPoints = (sampleSize + 1) * (sampleSize + 1);
         float[] heightMap = new float[calcPoints];
         float textureWidth = d.heightmapWidth;
         float sampleLength = (float)textureWidth / sampleSize;
+        float widthPercent = 1000 / width;
 
         int pointCounter = 0;
         for (int y = 0; y <= sampleSize; y++)
         {
             for (int x = 0; x <= sampleSize; x++)
             {
-                heightMap[pointCounter] = d.GetHeight((int)(x * sampleLength), (int)(y * sampleLength));
+                heightMap[pointCounter] = d.GetHeight((int)(x * sampleLength), (int)(y * sampleLength)) / widthPercent;
                 pointCounter++;
             }
         }
