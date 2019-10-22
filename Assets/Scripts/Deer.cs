@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class Deer : Creature
 {
-    
 
     // what is this v
     public Deer(float _hunger, float _thirst, float _breeding_urge, float _max_speed, float _energy, float _sight_radius, float _determinedness)

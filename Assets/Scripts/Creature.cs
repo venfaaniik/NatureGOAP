@@ -48,6 +48,7 @@ public class Creature : MonoBehaviour
 
     }
 
+    
     public void Wander()
     {
 
