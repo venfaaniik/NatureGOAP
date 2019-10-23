@@ -23,11 +23,13 @@ public class TerrainToMesh : MonoBehaviour
 
             mesh = BuildMeshFromGrid(vertices, sampleSize);
             //MakeVerticesGrid(vertices, sampleSize, squareLength);
+            mesh.RecalculateNormals();
 
             return mesh;
         }
         else
         {
+            Debug.LogError("sampleSize or width is 0 or TerrainData is null");
             return null;
         }
     }
