@@ -15,6 +15,11 @@ public class NavigationMesh : MonoBehaviour
 
     AStarNode[,] grid;
 
+    private void Start()
+    {
+        CreateGrid();       
+    }
+
     public void Bake()
     {
         CreateGrid();
@@ -31,11 +36,11 @@ public class NavigationMesh : MonoBehaviour
         float quadLength = gridDimension.x / quadsPerLine;
         int nodesXCountPerQuad = (int)(quadLength / nodeDiameter);
 
-        Debug.Log(nodesXCountPerQuad);
+        /*Debug.Log("Nodes per QuadX " + nodesXCountPerQuad);
         Debug.Log("Node diameter: " + nodeDiameter);
         Debug.Log("Grid Dimension: " + gridDimension);
         Debug.Log("Quads per line: " + quadsPerLine);
-        Debug.Log("Quad Length: " + quadLength);
+        Debug.Log("Quad Length: " + quadLength);*/
 
         float height;
 
@@ -45,20 +50,37 @@ public class NavigationMesh : MonoBehaviour
         //way 2 -- probably better
         for (int i = 0; i < quads; ++i)
         {
-            if (horizontalCount == quadsPerLine - 1)
+            if (horizontalCount == quadsPerLine)
             {
                 ++verticalCount;
                 horizontalCount = 0;
             }
 
-            int referencePoint = i + verticalCount;
-            Vector4 vertices = new Vector4(referencePoint, referencePoint + 1, referencePoint + quadsPerLine, referencePoint + quadsPerLine + 1);
+            //Debug.Log(i + " " + horizontalCount + " " + verticalCount);
 
-            //Calculate height differences
-            float firstDifferenceX = vertices.y - vertices.x;
-            float firstDifferenceY = vertices.z - vertices.x;
-            float secondDifferenceX = vertices.w - vertices.z;
-            float secondDifferenceY = vertices.w - vertices.y;
+            int referenceIndex = i + verticalCount;
+            int lowerLeft = referenceIndex;
+            int lowerRight = referenceIndex + 1;
+            int upperLeft = referenceIndex + quadsPerLine;
+            int upperRight = referenceIndex + quadsPerLine + 1;
+
+
+            float firstDifferenceX, firstDifferenceY, secondDifferenceX, secondDifferenceY;
+
+            if (upperRight < mesh.vertexCount)
+            {
+                //Calculate height differences
+                firstDifferenceX = mesh.vertices[lowerRight].y - mesh.vertices[lowerLeft].y;
+                firstDifferenceY = mesh.vertices[upperLeft].y - mesh.vertices[lowerLeft].y;
+                secondDifferenceX = mesh.vertices[upperRight].y - mesh.vertices[upperLeft].y;
+                secondDifferenceY = mesh.vertices[upperRight].y - mesh.vertices[lowerRight].y;
+            }
+            else
+            {
+                Debug.LogError("Index was out of bounds: " + upperRight);
+                return;
+            }
+
 
             float percentX, percentY;
             int currX, currY;
@@ -71,19 +93,19 @@ public class NavigationMesh : MonoBehaviour
                     percentY = (nodeRadius + y * nodeDiameter) / quadLength;
                     if (x + y < nodesXCountPerQuad) //Lower Triangle
                     {
-                        height = ((firstDifferenceX * percentX + mesh.vertices[(int)vertices.x].y) + (firstDifferenceY * percentY + mesh.vertices[(int)vertices.x].y)) / 2;
+                        height = ((firstDifferenceX * percentX + mesh.vertices[lowerLeft].y) + (firstDifferenceY * percentY + mesh.vertices[lowerLeft].y)) / 2;
                     }
                     else //Upper Triangle
                     {
-                        height = ((secondDifferenceX * percentX + mesh.vertices[(int)vertices.z].y) + (secondDifferenceY * percentY + mesh.vertices[(int)vertices.y].y)) / 2;
+                        height = ((secondDifferenceX * percentX + mesh.vertices[upperLeft].y) + (secondDifferenceY * percentY + mesh.vertices[lowerRight].y)) / 2;
                     }
-                    Vector3 worldPos = new Vector3(horizontalCount * nodesXCountPerQuad + x * nodeDiameter + nodeRadius, height, i * verticalCount + y * nodeDiameter + nodeRadius); //DOUBLE CHECK
                     currX = horizontalCount * nodesXCountPerQuad + x;
                     currY = verticalCount * nodesXCountPerQuad + y;
+                    Vector3 worldPos = new Vector3(currX * nodeDiameter + nodeRadius, height, currY * nodeDiameter + nodeRadius); //DOUBLE CHECK
                     if (currX < gridSizeX && currY < gridSizeY)
                         grid[currX, currY] = new AStarNode(true, worldPos, currX, currY, 0);
 
-                    Debug.Log("curr X: " + currX + " currY: " + currY);
+                    //Debug.Log("curr X: " + currX + " currY: " + currY);
                 }
             }
 
@@ -91,6 +113,35 @@ public class NavigationMesh : MonoBehaviour
         }
 
 
+    }
+
+    private void OnDrawGizmos()
+    {
+        if (displayGizmos)
+        {
+            Gizmos.color = Color.red;
+            for (int y = 0; y < gridSizeY; ++y)
+            {
+                for (int x = 0; x < gridSizeX; x++)
+                {
+                    if (grid[x, y] != null)
+                    {
+                        Gizmos.DrawCube(grid[x, y].worldPosition, new Vector3(nodeDiameter, nodeDiameter, nodeDiameter));
+                        //Debug.Log(grid[x, y].worldPosition.x);
+                    }
+                }
+                if (Gizmos.color == Color.red)
+                {
+                    Gizmos.color = Color.black;
+
+                }
+                else
+                {
+                    Gizmos.color = Color.red;
+
+                }
+            }
+        }
     }
 
 
