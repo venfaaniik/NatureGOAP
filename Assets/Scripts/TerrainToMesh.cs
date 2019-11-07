@@ -8,28 +8,44 @@ public class TerrainToMesh : MonoBehaviour
     /// <summary>
     /// Creates mesh from terrain data
     /// </summary>
-    /// <param name="sampleSize">how many squares you want on row/line</param>
+    /// <param name="sampleSize">how many squares you want on row/line, max size is 255</param>
     /// <param name="width">how wide is the mesh</param>
     public static Mesh CreateMeshFromTerrainData(int sampleSize, int width, TerrainData d, bool lowestPointToZero)
     {
-        if (sampleSize != 0 && width != 0 && d)
+        if (sampleSize > 0 && sampleSize < 256)
         {
+            if (width != 0)
+            {
+                if (d)
+                {
+                    Mesh mesh = new Mesh();
+                    Vector3[] vertices = MakeVerticesGrid(sampleSize, width);
+                    float[] heightMap = getHeightMap(sampleSize, d, width);
 
-            Mesh mesh = new Mesh();
-            Vector3[] vertices = MakeVerticesGrid(sampleSize, width);
-            float[] heightMap = getHeightMap(sampleSize, d, width);
+                    HeightMapToGrid(heightMap, vertices, lowestPointToZero);
 
-            HeightMapToGrid(heightMap, vertices, lowestPointToZero);
+                    mesh = BuildMeshFromGrid(vertices, sampleSize);
+                    //MakeVerticesGrid(vertices, sampleSize, squareLength);
+                    mesh.RecalculateNormals();
 
-            mesh = BuildMeshFromGrid(vertices, sampleSize);
-            //MakeVerticesGrid(vertices, sampleSize, squareLength);
-            mesh.RecalculateNormals();
+                    return mesh;
+                }
+                else
+                {
+                    Debug.LogError("TerrainData was null");
+                    return null;
+                }
 
-            return mesh;
+            }
+            else
+            {
+                Debug.LogError("width has to be greater than 0");
+                return null;
+            }
         }
         else
         {
-            Debug.LogError("sampleSize or width is 0 or TerrainData is null");
+            Debug.LogError("SampleSize has to be 1-255");
             return null;
         }
     }
