@@ -136,7 +136,7 @@ public class Creature : MonoBehaviour
     /// </summary>
     public void Die()
     {
-        //play some death animation?
+        //play some death animation? yes
         print("die");
         //deletes gameObject from scene
         Destroy(gameObject);
