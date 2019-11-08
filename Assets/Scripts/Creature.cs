@@ -56,7 +56,7 @@ public class Creature : MonoBehaviour
 
     public void Die()
     {
-        //play some death animation?
+        //play some death animation? yes
         print("die");
         Destroy(gameObject);
     }
