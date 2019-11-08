@@ -1,15 +1,39 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿//using System;
+//using System.Collections;
+//using System.Collections.Generic;
 using UnityEngine;
 
 public class SpawnManager : MonoBehaviour
 {
-    public GameObject Creature; // ???
+    GameObject plant;               // Plantin prefab joka spawnataan
+    GameObject creature;
 
-    void SpawnCreature()
+    Vector3 plantPosition;
+    bool is_dead;
+
+    [Range(5f, 180f)] [Tooltip("Aika, jonka jälkeen kasvit tulevat takaisin kuoleman porttien takaa.")]
+    public float spawnTime = 30f;            // Spawnväli esim kasvien kanssa
+     
+    public struct creationRequest {
+        Vector3 creatureSpawnPoint;         // Kohta mihi laitetaan creature
+    }
+
+    private void Start()
     {
-        // Create an instance of the enemy prefab at the randomly selected spawn point's position and rotation.
-        //spawnpoint -> pitää kattoo ettei spawnaa sitä muitten päälle?? vai onko colliders
-        Instantiate(Creature, SpawnPoint.position);
+        //  Toistaa tätä hamaan ikuisuuteen
+        InvokeRepeating("RespawnPlant", spawnTime, spawnTime);
+    }
+
+    public void RespawnPlant(GameObject plant, Vector3 plantPosition)
+    {
+        if (is_dead)
+        {
+            Instantiate(plant, plantPosition, Quaternion.identity);
+        }
+    }
+
+    public void SpawnCreature()
+    {
+        //Instantiate(creature, /*creature position*/, Quaternion.identity);
     }
 }
