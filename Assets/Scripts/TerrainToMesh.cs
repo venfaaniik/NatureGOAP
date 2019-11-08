@@ -129,7 +129,7 @@ public class TerrainToMesh : MonoBehaviour
         float[] heightMap = new float[calcPoints];
         float textureWidth = d.heightmapWidth;
         float sampleLength = (float)textureWidth / sampleSize;
-        float widthPercent = 1000 / width;
+        float widthPercent = d.size.x / width;
 
         int pointCounter = 0;
         for (int y = 0; y <= sampleSize; y++)
