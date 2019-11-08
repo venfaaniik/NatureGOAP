@@ -10,6 +10,6 @@ public class SpawnManager : MonoBehaviour
     {
         // Create an instance of the enemy prefab at the randomly selected spawn point's position and rotation.
         //spawnpoint -> pitää kattoo ettei spawnaa sitä muitten päälle?? vai onko colliders
-        Instantiate(Creature, SpawnPoint.position);
+        //Instantiate(Creature, SpawnPoint.position);
     }
 }
