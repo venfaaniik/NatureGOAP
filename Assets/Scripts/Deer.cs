@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Deer : Creature
 {
+    System.Random random = new System.Random();
 
     /// <summary>
     /// Create a Deer with these parametres:
@@ -19,7 +20,7 @@ public class Deer : Creature
     /// <param name="_diet_type">0: vegetarian</param>
     /// <param name="_is_male">50-50 is the creature a male when born</param>
 
-    public Deer(float _age, float _hunger, float _thirst, float _reproduction_urge, float _max_speed, float _energy, int _sight_radius, float _determinedness, int _diet_type, bool _is_male)
+    public Deer(float _age, float _hunger, float _thirst, float _reproduction_urge, float _max_speed, float _energy, float _sight_radius, float _determinedness, int _diet_type, bool _is_male, bool _is_mature)
     {
         Age = _age;
         Hunger = _hunger;
@@ -36,7 +37,9 @@ public class Deer : Creature
     // Start is called before the first frame update
     void Start()
     {
-
+        SightRadius = 10f;
+        ReproductionUrge = 1.0f;
+        gameObject.tag = "Deer";
     }
 
     // Update is called once per frame
@@ -51,6 +54,7 @@ public class Deer : Creature
         Energy -= 0.020f * dt;
         ReproductionUrge += 0.001f * dt;
 
+
         Hunger = Mathf.Clamp01(Hunger);
         Thirst = Mathf.Clamp01(Thirst);
         Energy = Mathf.Clamp01(Energy);
@@ -61,8 +65,77 @@ public class Deer : Creature
             Die();
         }
 
+        if (Age > 10)
+        {
+            IsMature = true;
+        }
+
         BehaviourTree(0);
 
+    }
+
+    public override void FindMate()
+    {
+        // Determine what gender we are looking for
+        bool targetGender = IsMale ? false : true;
+
+        // Find all gameobjects in sight_radius
+        Collider[] gameObjectsInRange = Physics.OverlapSphere(transform.position, SightRadius);
+
+        int i = 0;
+
+        // Loops through all the found objects
+        while (i < gameObjectsInRange.Length)
+        {
+            if (gameObjectsInRange[i].gameObject.CompareTag("Deer"))
+            {
+                Deer target = gameObjectsInRange[i].GetComponent<Deer>();
+                //Deer target = (Deer)FindObjectOfType(typeof(Deer));
+                if (isSuitable(target))
+                {
+                    print(gameObjectsInRange[i].transform.position + "deer found, IS SUITABLE, GO GOOGOGOGOGO");
+                }
+                else
+                {
+                    //print(gameObjectsInRange[i].transform.position + "deer found, not suitable");
+                }
+            }
+
+            i++;
+        }
+
+        // if grid at position x, y contains a potential mate, request a path to it
+        if (/*grid[x,y].Contains(targetGender)*/true)
+        {
+            // RequestPath(target);
+        }
+
+    }
+
+    bool isSuitable(Deer target)
+    {
+        // Is target of the right gender
+        bool suitableGender;
+        if (IsMale && !target.IsMale)
+        {
+            suitableGender = true;
+        }
+        else if (!IsMale && target.IsMale)
+        {
+            suitableGender = true;
+        }
+        else
+        {
+            suitableGender = false;
+        }
+
+        // If both requirements are met
+        if (suitableGender && target.IsMature)
+        {
+            return true;
+        }
+
+        return false;
     }
 
 }

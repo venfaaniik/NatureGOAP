@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Creature : MonoBehaviour
+public abstract class Creature : MonoBehaviour
 {
     // Age, how old is the creature, decreases energy based on this value
     [SerializeField]
@@ -24,7 +24,7 @@ public class Creature : MonoBehaviour
     private float energy;
     // Vision range, if food/water not in sight, wander around until something in sight
     [SerializeField]
-    private int sight_radius;
+    private float sight_radius;
     // Determinedness, affects how likely the creature changes direction while wandering
     [SerializeField]
     private float determinedness;
@@ -34,6 +34,9 @@ public class Creature : MonoBehaviour
     // Gender, male female
     [SerializeField]
     private bool is_male;
+    // Is mature, can reproduce
+    [SerializeField]
+    private bool is_mature;
 
     // We never initialize a Creature using this?
     public Creature()
@@ -53,24 +56,7 @@ public class Creature : MonoBehaviour
         
     }
 
-    public void FindMate()
-    {
-        bool targetGender = is_male ? false : true;
-
-        Vector3 worldPos = transform.position;
-
-        for (int x = 0; x < sight_radius; x++)
-        {
-            for (int y = 0; y < sight_radius; y++)
-            {
-                // if grid at position x, y contains a potential mate, request a path to it
-                if (/*grid[x,y].Contains(targetGender)*/true)
-                {
-                    // RequestPath(target);
-                }
-            }
-        }
-    }
+    public abstract void FindMate();
 
     /// <summary>
     /// Find food in sight_radius, request a path to food, eat
@@ -107,7 +93,7 @@ public class Creature : MonoBehaviour
     public void BehaviourTree(int type)
     {
         // if the creature has no hunger or thirst, try to reproduce
-        if (hunger < reproduction_urge && thirst < reproduction_urge)
+        if (hunger < reproduction_urge && thirst < reproduction_urge && is_mature)
         {
             // Find a mate to reproduce with
             FindMate();
@@ -214,7 +200,7 @@ public class Creature : MonoBehaviour
         }
     }
 
-    public int SightRadius
+    public float SightRadius
     {
         get
         {
@@ -259,6 +245,18 @@ public class Creature : MonoBehaviour
         set
         {
             is_male = value;
+        }
+    }
+
+    public bool IsMature
+    {
+        get
+        {
+            return is_mature;
+        }
+        set
+        {
+            is_mature = value;
         }
     }
 }
