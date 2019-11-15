@@ -70,8 +70,6 @@ public class Deer : Creature
             IsMature = true;
         }
 
-        BehaviourTree(0);
-
     }
 
     public override void FindMate()
@@ -94,6 +92,9 @@ public class Deer : Creature
                 if (isSuitable(target))
                 {
                     print(gameObjectsInRange[i].transform.position + "deer found, IS SUITABLE, GO GOOGOGOGOGO");
+
+                    // request path to target.
+
                 }
                 else
                 {
@@ -102,12 +103,6 @@ public class Deer : Creature
             }
 
             i++;
-        }
-
-        // if grid at position x, y contains a potential mate, request a path to it
-        if (/*grid[x,y].Contains(targetGender)*/true)
-        {
-            // RequestPath(target);
         }
 
     }

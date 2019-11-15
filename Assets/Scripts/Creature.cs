@@ -50,10 +50,20 @@ public abstract class Creature : MonoBehaviour
         
     }
     
-    public void Wander()
+    public void Wander(int targetType)
     {
         //move around aimlessly, more determinedness = moves longer in one direction 
+
+        bool targetFound = false;
+
+        // Find all gameobjects in sight_radius
+        Collider[] gameObjectsInRange = Physics.OverlapSphere(transform.position, sight_radius);
         
+        // Loops through all the found objects
+
+        /*while (!targetFound)
+        {
+        }*/
     }
 
     public abstract void FindMate();
@@ -61,17 +71,23 @@ public abstract class Creature : MonoBehaviour
     /// <summary>
     /// Find food in sight_radius, request a path to food, eat
     /// </summary>
-    public void FindFood()
+    public void FindFoodInRange(Collider[] gameObjectsInRange)
     {
-        
-    }
+        int i = 0;
+        while (i < gameObjectsInRange.Length)
+        {
+            if (gameObjectsInRange[i].gameObject.CompareTag("Food"))
+            {
+                GameObject target = gameObjectsInRange[i].gameObject;
 
-    /// <summary>
-    /// Find Deer to hunt in sight_radius, request a path to deer, eat
-    /// </summary>
-    public void Hunt()
-    {
-        Vector3 worldPos = transform.position;
+                print(gameObjectsInRange[i].transform.position + "food found");
+
+                // request path to target. eppu do
+
+            }
+
+            i++;
+        }
 
 
     }
@@ -79,42 +95,25 @@ public abstract class Creature : MonoBehaviour
     /// <summary>
     /// Find water in sight_radius, request a path to water, drink
     /// </summary>
-    public void FindWater()
+    public void FindWaterInRange(Collider[] gameObjectsInRange)
     {
-
-
-
-    }
-
-    /// <summary>
-    /// What the creature does based on parameters
-    /// </summary>
-    /// <param name="type">0: Vegetarian, 1: Carnivore, 2: Both</param>
-    public void BehaviourTree(int type)
-    {
-        // if the creature has no hunger or thirst, try to reproduce
-        if (hunger < reproduction_urge && thirst < reproduction_urge && is_mature)
+        int i = 0;
+        while (i < gameObjectsInRange.Length)
         {
-            // Find a mate to reproduce with
-            FindMate();
+            if (gameObjectsInRange[i].gameObject.CompareTag("Water"))
+            {
+                GameObject target = gameObjectsInRange[i].gameObject;
+
+                print(gameObjectsInRange[i].transform.position + "water found");
+
+                // request path to target. eppu do
+              
+            }
+
+            i++;
         }
 
-        if (hunger > reproduction_urge && type == 0 || type == 2)
-        {
-            // Find food to eat based on diet
-            FindFood();
-        }
 
-        if (hunger > reproduction_urge && type == 1)
-        {
-            Hunt();
-        }
-
-        if (thirst > reproduction_urge)
-        {
-            FindWater();
-        }
-        
     }
 
     /// <summary>
