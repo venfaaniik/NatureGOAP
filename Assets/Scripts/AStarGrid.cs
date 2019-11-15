@@ -16,7 +16,7 @@ public class AStarGrid : MonoBehaviour
 
     private void Start()
     {
-        CreateGrid();
+        Bake();
     }
 
     public void Bake()
@@ -30,16 +30,12 @@ public class AStarGrid : MonoBehaviour
         nodeRadius = nodeDiameter / 2;
         grid = new AStarNode[gridSizeX, gridSizeY];
 
-        Debug.Log(nodeRadius);
-        Debug.Log(nodeDiameter);
-
         Vector3 worldPos;
         float worldX, worldZ;
-        float[,] heightMap = new float[gridSizeX , gridSizeY];
+        float height;
 
-        heightMap = data.GetHeights(0, 0, gridSizeX, gridSizeY);
 
-        Debug.Log(data.size.x);
+        float percent = data.heightmapWidth / gridSizeX;
 
         for (int y = 0; y < gridSizeY; ++y)
         {
@@ -47,13 +43,61 @@ public class AStarGrid : MonoBehaviour
             {
                 worldX = nodeRadius + x * nodeDiameter;
                 worldZ = nodeRadius + y * nodeDiameter;
-                worldPos = new Vector3(worldX, heightMap[y, x] * data.heightmapScale.y, worldZ);
+                height = data.GetHeight(Mathf.FloorToInt(x * percent), Mathf.FloorToInt(y * percent));
+                worldPos = new Vector3(worldX, height, worldZ);
                 grid[x, y] = new AStarNode(true, worldPos, x, y, 0);
                 //Debug.Log(heightMap[x, y]);
                 //Debug.Log("xCoord: " + x + " zCoord: " + y + " yCoord: " + data.GetHeight((int)worldX,(int) worldZ));
             }
         }
     }
+
+    public AStarNode NodeFromWorldPoint(Vector3 worldPosition)
+    {
+        Debug.Log(worldPosition.x +  ":"   + worldPosition.z);
+        float percentX = worldPosition.x / data.size.x;
+        float percentY = worldPosition.z / data.size.y;
+        percentX = Mathf.Clamp01(percentX);
+        percentY = Mathf.Clamp01(percentY);
+
+        int x = Mathf.RoundToInt((gridSizeX - 1) * percentX);
+        int y = Mathf.RoundToInt((gridSizeY - 1) * percentY);
+        return grid[x, y];
+    }
+
+    public int MaxSize
+    {
+        get
+        {
+            return gridSizeX * gridSizeY;
+        }
+    }
+
+    public List<AStarNode> GetNeighbours(AStarNode node)
+    {
+        List<AStarNode> neighbours = new List<AStarNode>();
+        for (int x = -1; x <= 1; x++)
+        {
+            for (int y = -1; y <= 1; y++)
+            {
+                if (x == 0 && y == 0)
+                    continue;
+
+                int checkX = node.gridX + x;
+                int checkY = node.gridY + y;
+
+                if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY)
+                {
+                    neighbours.Add(grid[checkX, checkY]);
+                }
+            }
+        }
+
+        return neighbours;
+    }
+
+
+
 
     private void OnDrawGizmos()
     {
@@ -64,7 +108,7 @@ public class AStarGrid : MonoBehaviour
             {
                 for (int x = 0; x < gridSizeX; ++x)
                 {
-                    if (grid[x, y] != null)
+                    if (grid != null)
                     {
                         Gizmos.DrawCube(grid[x, y].worldPosition, new Vector3(nodeRadius, nodeRadius, nodeRadius));
                     }
