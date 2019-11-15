@@ -4,39 +4,51 @@ using UnityEngine;
 using UnityEngine.UI;
 public class Cycle : MonoBehaviour
 {
-    double hour = 0.0;
-    double minute = 0.0;
-    double second = 0.0;
-    private Text cycle;
+    public Transform sun;
+    public Transform moon;
+    public Text cycle;
+
+    private int hour = 0;
+    private int minute = 0;
+    private int second = 0;
     void Start()
     {
         StartCoroutine(ExecuteAfterTime());
+        Time.timeScale = 50;
+    }
+    private void Update()
+    {
+        // Sun and Moon objects spinning 360°
+        sun.transform.RotateAround(Vector3.zero, Vector3.right, 1f * Time.deltaTime);
+        sun.transform.LookAt(Vector3.zero);
+        moon.transform.RotateAround(Vector3.zero, Vector3.right, 1f * Time.deltaTime);
+        moon.transform.LookAt(Vector3.zero);
+
     }
     IEnumerator ExecuteAfterTime()
     {
-        while(hour != 50)
+        while(true)
         {
         yield return new WaitForSeconds(1);
-        cycle = GetComponent<Text>();
-        cycle.text = hour + ":" + minute + ":" + second;
-        second++;
+             cycle.text = hour + ":" + minute + ":" + second;
+             second++;
 
         if (second > 59)
-        {
-            second = 0.0;
-            minute++;
-            if (minute > 59)
             {
-                minute = 0.0;
-                hour++;
-                if (hour > 23)
+               second = 0;
+               minute++;
+                if (minute > 59)
                 {
-                    hour = 0.0;
-                    minute = 0.0;
-                    second = 0.0;
+                   minute = 0;
+                   hour++;
+                    if (hour > 23)
+                    {
+                       hour = 0;
+                       minute = 0;
+                       second = 0;
+                    }
                 }
             }
-        }
         }
     }
 }
