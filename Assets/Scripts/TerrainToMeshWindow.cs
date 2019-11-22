@@ -10,6 +10,7 @@ public class TerrainToMeshWindow : EditorWindow
     string path = "";
     int sampleSize = 0;
     int meshWidth = 0;
+    bool lowestPointToZero = true;
     TerrainData data;
 
     public Mesh mesh;
@@ -28,12 +29,13 @@ public class TerrainToMeshWindow : EditorWindow
         //path = EditorGUILayout.TextField("Path for mesh", path);
         sampleSize = EditorGUILayout.IntField("Number of squares in row:", sampleSize);
         meshWidth = EditorGUILayout.IntField("Width of the mesh:", meshWidth);
+        lowestPointToZero = EditorGUILayout.Toggle("Lowest point to 0", lowestPointToZero);
         data = (TerrainData)EditorGUILayout.ObjectField(data, typeof(TerrainData), true);
 
 
         if (GUILayout.Button("Generate Mesh"))
         {
-            mesh = TerrainToMesh.CreateMeshFromTerrainData(sampleSize, meshWidth, data);
+            mesh = TerrainToMesh.CreateMeshFromTerrainData(sampleSize, meshWidth, data, lowestPointToZero);
             string assetPath = path + meshName;
             TerrainToMesh.CreateMesh(mesh, meshName);
         }

@@ -8,28 +8,44 @@ public class TerrainToMesh : MonoBehaviour
     /// <summary>
     /// Creates mesh from terrain data
     /// </summary>
-    /// <param name="sampleSize">how many squares you want on row/line</param>
+    /// <param name="sampleSize">how many squares you want on row/line, max size is 255</param>
     /// <param name="width">how wide is the mesh</param>
-    public static Mesh CreateMeshFromTerrainData(int sampleSize, int width, TerrainData d)
+    public static Mesh CreateMeshFromTerrainData(int sampleSize, int width, TerrainData d, bool lowestPointToZero)
     {
-        if (sampleSize != 0 && width != 0 && d)
+        if (sampleSize > 0 && sampleSize < 256)
         {
+            if (width != 0)
+            {
+                if (d)
+                {
+                    Mesh mesh = new Mesh();
+                    Vector3[] vertices = MakeVerticesGrid(sampleSize, width);
+                    float[] heightMap = getHeightMap(sampleSize, d, width);
 
-            Mesh mesh = new Mesh();
-            Vector3[] vertices = MakeVerticesGrid(sampleSize, width);
-            float[] heightMap = getHeightMap(sampleSize, d, width);
+                    HeightMapToGrid(heightMap, vertices, lowestPointToZero);
 
-            HeightMapToGrid(heightMap, vertices);
+                    mesh = BuildMeshFromGrid(vertices, sampleSize);
+                    //MakeVerticesGrid(vertices, sampleSize, squareLength);
+                    mesh.RecalculateNormals();
 
-            mesh = BuildMeshFromGrid(vertices, sampleSize);
-            //MakeVerticesGrid(vertices, sampleSize, squareLength);
-            mesh.RecalculateNormals();
+                    return mesh;
+                }
+                else
+                {
+                    Debug.LogError("TerrainData was null");
+                    return null;
+                }
 
-            return mesh;
+            }
+            else
+            {
+                Debug.LogError("width has to be greater than 0");
+                return null;
+            }
         }
         else
         {
-            Debug.LogError("sampleSize or width is 0 or TerrainData is null");
+            Debug.LogError("SampleSize has to be 1-255");
             return null;
         }
     }
@@ -67,16 +83,33 @@ public class TerrainToMesh : MonoBehaviour
     /// </summary>
     /// <param name="heightMap">float[] heightMap</param>
     /// <param name="vertices">Vector3[] vertices</param>
-    public static void HeightMapToGrid(float[] heightMap, Vector3[] vertices)
+    public static void HeightMapToGrid(float[] heightMap, Vector3[] vertices, bool lowestPointToZero)
     {
+
+        float lowestPoint = 100000f;
+
         //Assign values from heights to vertices.y coordinate
         if (heightMap.Length == vertices.Length)
         {
             for (int i = 0; i < heightMap.Length; i++)
-            {
+            { 
                 vertices[i].y = heightMap[i];
                 //Debug.Log("(" + vertices[i].x + "," + vertices[i].y + "," + vertices[i].z + ")");
+
+                if (heightMap[i] < lowestPoint)
+                {
+                    lowestPoint = heightMap[i];
+                }
             }
+
+            if (lowestPointToZero)
+            {
+                for (int j = 0; j < heightMap.Length; j++)
+                {
+                    vertices[j].y -= lowestPoint;
+                }
+            }
+
         }
         else
         {
@@ -96,7 +129,7 @@ public class TerrainToMesh : MonoBehaviour
         float[] heightMap = new float[calcPoints];
         float textureWidth = d.heightmapWidth;
         float sampleLength = (float)textureWidth / sampleSize;
-        float widthPercent = 1000 / width;
+        float widthPercent = d.size.x / width;
 
         int pointCounter = 0;
         for (int y = 0; y <= sampleSize; y++)
