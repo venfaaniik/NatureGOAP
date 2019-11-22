@@ -3,14 +3,14 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
-[CustomEditor(typeof(NavigationMesh))]
+[CustomEditor(typeof(AStarGrid))]
 public class NavigationMeshEditor : Editor
 {
     public override void OnInspectorGUI()
     {
         DrawDefaultInspector();
 
-        NavigationMesh navMesh = (NavigationMesh)target;
+        AStarGrid navMesh = (AStarGrid)target;
         if (GUILayout.Button("Bake navigation mesh"))
         {
             navMesh.Bake();

@@ -20,13 +20,13 @@ public class SpawnManager : MonoBehaviour
             case animal.Deer:
                 go = new GameObject("Deer");
                 Instantiate(go, creaturePosition, Quaternion.identity);
-                //go.AddComponent<AStarUnit>();
+                go.AddComponent<AStarUnit>();
 
                 break;
             case animal.Wolf:
                 go = new GameObject("Wolf");
                 Instantiate(go, creaturePosition, Quaternion.identity);
-                //go.AddComponent<AStarUnit>();
+                go.AddComponent<AStarUnit>();
                 break;
         }
     }

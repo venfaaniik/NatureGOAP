@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
-//kNode koska Unity ei tykänny pelkästä Node:sta
 public class AStarNode : IHeapItem<AStarNode>
 {
     public bool walkable;
