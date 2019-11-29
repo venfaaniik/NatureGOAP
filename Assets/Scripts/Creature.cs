@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public abstract class Creature : MonoBehaviour
 {
@@ -37,84 +38,105 @@ public abstract class Creature : MonoBehaviour
     // Is mature, can reproduce
     [SerializeField]
     private bool is_mature;
+    [SerializeField]
+    private NavMeshAgent agent;
+    [SerializeField]
+    //GOAPAction action;
 
-    // We never initialize a Creature using this?
-    public Creature()
+    private void Awake()
     {
+        //action = GetComponent<GOAPAction>();
+        agent = GetComponent<NavMeshAgent>();
 
     }
 
-    // get path to water/food?
-    public void GetPathToTarget(Vector3 some_place)
+
+
+    private void Update()
     {
-        
+        //Check action
+        //call that task if action.type = waiting
+    }
+
+    public void DrinkTask()
+    {
+        //action.status = GOAPAction.ActionType.DOING;
+        FindRequest callback = FindDrinkingSpot();
+        if (callback.successful)
+        {
+            bool moving = false;
+            agent.SetDestination(callback.go.transform.position);
+            moving = true;
+
+            if (!agent.hasPath)
+            {
+                //ERROR
+                //action.status = GOAPAction.ActionType.DONE;
+                //CANCEL TASK
+            }
+
+        }
+
+        //action.status = GOAPAction.ActionType.DONE
+        //Remove task from que
+    }
+
+    public void WanderTask()
+    {
+        //action.status = GOAPAction.ActionType.DOING;
+    }
+
+    public void IdleTask()
+    {
+        //action.status = GOAPAction.ActionType.DOING;
+    }
+
+    //Finds nearest water place and finds a open drinking spot
+    public FindRequest FindDrinkingSpot()
+    {
+        FindRequest callback = new FindRequest();
+        callback.successful = false;
+        GameObject water = new GameObject();
+        GameObject[] go;
+        go = GameObject.FindGameObjectsWithTag("Water");
+
+        float distance = 100000;
+        if (go.Length != 0)
+        {
+            foreach (GameObject g in go)
+            {
+                if (distance > Vector3.Distance(g.transform.position, this.transform.position))
+                {
+                    water = g;
+                    distance = Vector3.Distance(g.transform.position, this.transform.position);
+                }
+            }
+
+            for (int i = 0; i < water.transform.childCount; ++i)
+            {
+                if (!water.transform.GetChild(i).GetComponent<DrinkingSpot>().occupied)
+                {
+                    callback.go = water.transform.GetChild(i).gameObject;
+                    callback.successful = true;
+                    break;
+                }
+            }
+        }
+
+        return callback;
+    }
+
+
+    public void Drink()
+    {
+
     }
     
-    public void Wander(int targetType)
-    {
-        //move around aimlessly, more determinedness = moves longer in one direction 
-
-        bool targetFound = false;
-
-        // Find all gameobjects in sight_radius
-        Collider[] gameObjectsInRange = Physics.OverlapSphere(transform.position, sight_radius);
-        
-        // Loops through all the found objects
-
-        /*while (!targetFound)
-        {
-        }*/
-    }
-
-    public abstract void FindMate();
-
-    /// <summary>
-    /// Find food in sight_radius, request a path to food, eat
-    /// </summary>
-    public void FindFoodInRange(Collider[] gameObjectsInRange)
-    {
-        int i = 0;
-        while (i < gameObjectsInRange.Length)
-        {
-            if (gameObjectsInRange[i].gameObject.CompareTag("Food"))
-            {
-                GameObject target = gameObjectsInRange[i].gameObject;
-
-                print(gameObjectsInRange[i].transform.position + "food found");
-
-                // request path to target. eppu do
-
-            }
-
-            i++;
-        }
-
-
-    }
-
-    /// <summary>
-    /// Find water in sight_radius, request a path to water, drink
-    /// </summary>
-    public void FindWaterInRange(Collider[] gameObjectsInRange)
-    {
-        int i = 0;
-        while (i < gameObjectsInRange.Length)
-        {
-            if (gameObjectsInRange[i].gameObject.CompareTag("Water"))
-            {
-                GameObject target = gameObjectsInRange[i].gameObject;
-
-                print(gameObjectsInRange[i].transform.position + "water found");
-
-                // request path to target. eppu do
-              
-            }
-
-            i++;
-        }
-
-
-    }
+    //Abstract methods
+    public abstract FindRequest FindFood();
+    public abstract FindRequest FindMate();
+    public abstract void EatTask();
+    public abstract void MateTask();
 
     /// <summary>
     /// Kuole
@@ -258,4 +280,11 @@ public abstract class Creature : MonoBehaviour
             is_mature = value;
         }
     }
+
+    public class FindRequest
+    {
+        public bool successful { get; set; }
+        public GameObject go { get; set; }
+    }
+
 }

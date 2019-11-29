@@ -72,40 +72,61 @@ public class Deer : Creature
 
     }
 
-    public override void FindMate()
+    public override void EatTask()
     {
-        // Determine what gender we are looking for
-        bool targetGender = IsMale ? false : true;
-
-        // Find all gameobjects in sight_radius
-        Collider[] gameObjectsInRange = Physics.OverlapSphere(transform.position, SightRadius);
-
-        int i = 0;
-
-        // Loops through all the found objects
-        while (i < gameObjectsInRange.Length)
-        {
-            if (gameObjectsInRange[i].gameObject.CompareTag("Deer"))
-            {
-                Deer target = gameObjectsInRange[i].GetComponent<Deer>();
-                //Deer target = (Deer)FindObjectOfType(typeof(Deer));
-                if (isSuitable(target))
-                {
-                    print(gameObjectsInRange[i].transform.position + "deer found, IS SUITABLE, GO GOOGOGOGOGO");
-
-                    // request path to target.
-
-                }
-                else
-                {
-                    //print(gameObjectsInRange[i].transform.position + "deer found, not suitable");
-                }
-            }
-
-            i++;
-        }
 
     }
+
+    public override Creature.FindRequest FindFood()
+    {
+        return null;
+    }
+
+    public override Creature.FindRequest FindMate()
+    {
+        FindRequest callback = new FindRequest();
+        return callback;
+    }
+
+    public override void MateTask()
+    {
+
+    }
+
+    //public override void FindMate()
+    //{
+    //    // Determine what gender we are looking for
+    //    bool targetGender = IsMale ? false : true;
+
+    //    // Find all gameobjects in sight_radius
+    //    Collider[] gameObjectsInRange = Physics.OverlapSphere(transform.position, SightRadius);
+
+    //    int i = 0;
+
+    //    // Loops through all the found objects
+    //    while (i < gameObjectsInRange.Length)
+    //    {
+    //        if (gameObjectsInRange[i].gameObject.CompareTag("Deer"))
+    //        {
+    //            Deer target = gameObjectsInRange[i].GetComponent<Deer>();
+    //            //Deer target = (Deer)FindObjectOfType(typeof(Deer));
+    //            if (isSuitable(target))
+    //            {
+    //                print(gameObjectsInRange[i].transform.position + "deer found, IS SUITABLE, GO GOOGOGOGOGO");
+
+    //                // request path to target.
+
+    //            }
+    //            else
+    //            {
+    //                //print(gameObjectsInRange[i].transform.position + "deer found, not suitable");
+    //            }
+    //        }
+
+    //        i++;
+    //    }
+
+    //}
 
     bool isSuitable(Deer target)
     {

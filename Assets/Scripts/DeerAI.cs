@@ -31,18 +31,18 @@ public class DeerAI : MonoBehaviour
          && deer.IsMature)
         {
             // Find a mate to reproduce with
-            deer.FindMate();
+            //deer.FindMate();
         }
 
         if (deer.Hunger > deer.ReproductionUrge)
         {
             // Find food to eat based on diet
-            deer.FindFood();
+            //deer.FindFood();
         }
 
         if (deer.Hunger > deer.ReproductionUrge)
         {
-            deer.FindWater();
+            //deer.FindWater();
         }
 
 
