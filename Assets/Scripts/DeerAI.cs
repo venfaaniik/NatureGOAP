@@ -5,10 +5,7 @@ using UnityEngine;
 public class DeerAI : MonoBehaviour
 {
     Deer deer;
-    // if deer is idle, get a thing to do
-    [SerializeField]
-    private bool is_idle;
-
+    
     void Awake()
     {
         deer = GetComponent<Deer>();
@@ -17,36 +14,39 @@ public class DeerAI : MonoBehaviour
 
     void Update()
     {
-        if (is_idle)
-        {
-            BehaviourTree();
-        }    
+        ChangeObjective();
+        BehaviourTree();
+    }
+
+    public void ChangeObjective()
+    {
+        //// if the creature has no hunger or thirst, try to reproduce
+        //if (deer.Hunger < deer.ReproductionUrge
+        // && deer.Thirst < deer.ReproductionUrge
+        // && deer.IsMature)
+        //{
+        //    // Find a mate to reproduce with
+        //    deer.FindMate();
+        //}
+
+        //if (deer.Hunger > deer.ReproductionUrge)
+        //{
+        //    deer.FindFood();
+        //}
+
+        //if (deer.Thirst > deer.ReproductionUrge)
+        //{
+        //    deer.FindWater();
+        //}
+
     }
 
     public void BehaviourTree()
-    {
-        // if the creature has no hunger or thirst, try to reproduce
-        if (deer.Hunger < deer.ReproductionUrge 
-         && deer.Thirst < deer.ReproductionUrge 
-         && deer.IsMature)
-        {
-            // Find a mate to reproduce with
-            //deer.FindMate();
-        }
-
-        if (deer.Hunger > deer.ReproductionUrge)
-        {
-            // Find food to eat based on diet
-            //deer.FindFood();
-        }
-
-        if (deer.Hunger > deer.ReproductionUrge)
-        {
-            //deer.FindWater();
-        }
-
-
-
+    { 
+        Collider[] gameObjectsInRange = Physics.OverlapSphere(transform.position, deer.SightRadius);
     }
+
+
+
     
 }

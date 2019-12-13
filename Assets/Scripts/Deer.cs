@@ -19,7 +19,9 @@ public class Deer : Creature
     /// <param name="_determinedness">set to 0-1, how much does the creature change direction while wandering</param>
     /// <param name="_diet_type">0: vegetarian</param>
     /// <param name="_is_male">50-50 is the creature a male when born</param>
+    
 
+        //KAAPO EI CONSTRUCTOREJA UNITYSSÄ >:(
     public Deer(float _age, float _hunger, float _thirst, float _reproduction_urge, float _max_speed, float _energy, float _sight_radius, float _determinedness, int _diet_type, bool _is_male, bool _is_mature)
     {
         Age = _age;

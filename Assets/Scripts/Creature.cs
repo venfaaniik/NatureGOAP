@@ -13,7 +13,7 @@ public abstract class Creature : MonoBehaviour
     private float hunger;
     // When this rises too high, send a path request to water? clamp 0-1?
     [SerializeField]
-    [Range(0, 100)]
+    [Range(0, 1.1f)]
     private float thirst;
     // While this is above hunger and thirst, look for mate. clamp 0-1?
     [SerializeField]
@@ -42,11 +42,14 @@ public abstract class Creature : MonoBehaviour
     [SerializeField]
     private NavMeshAgent agent;
     [SerializeField]
-    //GOAPAction action;
+    GOAPAction action;
+    [SerializeField]
+    GOAPPlanner planner;
 
     private void Awake()
     {
-        //action = GetComponent<GOAPAction>();
+        planner = GetComponent<GOAPPlanner>();
+        action = GetComponent<GOAPAction>();
         agent = GetComponent<NavMeshAgent>();
 
     }
@@ -55,8 +58,10 @@ public abstract class Creature : MonoBehaviour
 
     private void Update()
     {
+        Debug.Log(agent.remainingDistance);
         //Check action
         //call that task if action.type = waiting
+        
     }
 
     public void DrinkTask()
@@ -68,23 +73,24 @@ public abstract class Creature : MonoBehaviour
             bool moving = false;
             agent.SetDestination(callback.go.transform.position);
 
-            if (!agent.hasPath)
+            while (agent.pathPending)
             {
-                //ERROR
-                //action.status = GOAPAction.ActionType.DONE;
-                //CANCEL TASK
 
             }
 
+            
             moving = true;
-
-            if (agent.pathStatus == NavMeshPathStatus.PathComplete)
+            if (agent.remainingDistance < 2)
             {
                 Drink();
+                Debug.Log("We got here");
             }
+
+
         }
 
-        //action.status = GOAPAction.ActionType.DONE
+        //action.currentStatus = GOAPAction.Status.DONE;
+        //Send message to GOAPPlaner
         //Remove task from que
     }
 
@@ -106,6 +112,7 @@ public abstract class Creature : MonoBehaviour
         GameObject water = new GameObject();
         GameObject[] go;
         go = GameObject.FindGameObjectsWithTag("Water");
+
 
         float distance = 100000;
         if (go.Length != 0)
@@ -138,9 +145,9 @@ public abstract class Creature : MonoBehaviour
     /// </summary>
     public void Drink()
     {
-        while (thirst != 100)
+        while (thirst > 0.02)
         {
-            thirst += 0.1f * Time.deltaTime;
+            thirst -= 0.1f * Time.deltaTime;
         }
 
         //action.status = GOAPAction.ActionType.DONE
