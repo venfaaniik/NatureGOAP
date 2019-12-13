@@ -13,6 +13,7 @@ public abstract class Creature : MonoBehaviour
     private float hunger;
     // When this rises too high, send a path request to water? clamp 0-1?
     [SerializeField]
+    [Range(0, 100)]
     private float thirst;
     // While this is above hunger and thirst, look for mate. clamp 0-1?
     [SerializeField]
@@ -66,15 +67,21 @@ public abstract class Creature : MonoBehaviour
         {
             bool moving = false;
             agent.SetDestination(callback.go.transform.position);
-            moving = true;
 
             if (!agent.hasPath)
             {
                 //ERROR
                 //action.status = GOAPAction.ActionType.DONE;
                 //CANCEL TASK
+
             }
 
+            moving = true;
+
+            if (agent.pathStatus == NavMeshPathStatus.PathComplete)
+            {
+                Drink();
+            }
         }
 
         //action.status = GOAPAction.ActionType.DONE
@@ -126,10 +133,17 @@ public abstract class Creature : MonoBehaviour
         return callback;
     }
 
-
+    /// <summary>
+    /// Drinks till not thirsty
+    /// </summary>
     public void Drink()
     {
+        while (thirst != 100)
+        {
+            thirst += 0.1f * Time.deltaTime;
+        }
 
+        //action.status = GOAPAction.ActionType.DONE
     }
     
     //Abstract methods
@@ -139,7 +153,7 @@ public abstract class Creature : MonoBehaviour
     public abstract void MateTask();
 
     /// <summary>
-    /// Kuole
+    /// 
     /// </summary>
     public void Die()
     {
