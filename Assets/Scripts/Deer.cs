@@ -19,19 +19,6 @@ public class Deer : Creature
     /// <param name="_diet_type">0: vegetarian</param>
     /// <param name="_is_male">50-50 is the creature a male when born</param>
 
-    public Deer(float _age, float _hunger, float _thirst, float _reproduction_urge, float _max_speed, float _energy, int _sight_radius, float _determinedness, int _diet_type, bool _is_male)
-    {
-        Age = _age;
-        Hunger = _hunger;
-        Thirst = _thirst;
-        ReproductionUrge = _reproduction_urge;
-        MaxSpeed = _max_speed;
-        Energy = _energy;
-        SightRadius = _sight_radius;
-        Determinedness = _determinedness;
-        DietType = _diet_type;
-        IsMale = _is_male;
-    }
 
     // Start is called before the first frame update
     void Start()
@@ -40,7 +27,7 @@ public class Deer : Creature
     }
 
     // Update is called once per frame
-    void Update()
+    /*void Update()
     {
         float dt = Time.deltaTime;
 
@@ -63,6 +50,6 @@ public class Deer : Creature
 
         BehaviourTree(0);
 
-    }
+    }*/
 
 }

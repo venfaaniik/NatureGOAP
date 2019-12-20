@@ -19,10 +19,13 @@ public class Cycle : MonoBehaviour
     private void Update()
     {
         // Sun and Moon objects spinning 360°
-        sun.transform.RotateAround(Vector3.zero, Vector3.right, 1f * Time.deltaTime);
-        sun.transform.LookAt(Vector3.zero);
-        moon.transform.RotateAround(Vector3.zero, Vector3.right, 1f * Time.deltaTime);
-        moon.transform.LookAt(Vector3.zero);
+        if (sun)
+        {
+            sun.transform.RotateAround(Vector3.zero, Vector3.right, 1f * Time.deltaTime);
+            sun.transform.LookAt(Vector3.zero);
+            moon.transform.RotateAround(Vector3.zero, Vector3.right, 1f * Time.deltaTime);
+            moon.transform.LookAt(Vector3.zero);
+        }
 
     }
     IEnumerator ExecuteAfterTime()

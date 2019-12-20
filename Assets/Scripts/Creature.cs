@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class Creature : MonoBehaviour
 {
@@ -35,113 +36,268 @@ public class Creature : MonoBehaviour
     [SerializeField]
     private bool is_male;
 
-    // We never initialize a Creature using this?
-    public Creature()
-    {
 
+    public NavMeshAgent agent;
+    public GOAPAction activeTask;
+    public GOAPPlanner planner;
+    bool moving = false;
+    Vector3 target;
+    bool drinking = false;
+
+    GOAPAction.Step step;
+
+    private void Awake()
+    {
+        activeTask = new GOAPAction();
+        planner = GetComponent<GOAPPlanner>();
+        agent = GetComponent<NavMeshAgent>();
+        //Debug start
+        age = 1;
+        hunger = 0;
+        thirst = 0;
+        reproduction_urge = 0;
+        max_speed = 10;
+        energy = 100;
+        sight_radius = 100;
+        determinedness = 0;
+        diet_type = 0;
+        is_male = true;
+        //Debug end
     }
 
-    // get path to water/food?
-    public void GetPathToTarget(Vector3 some_place)
+    private void Update()
     {
+        UpdateMoving();
+        CheckTaskProgress();
+    }
+
+    public void StartDrinkTask()
+    {
+        activeTask.task = GOAPAction.Task.DRINK;
+        activeTask.status = GOAPAction.Status.DOING;
+        step = GOAPAction.Step.FINDING_LOCATION;
+
+        Debug.Log("Task type and status " + activeTask.task + " : " + activeTask.status);
+
+
+        DrinkTask();
+
         
     }
-    
-    public void Wander()
+
+
+    void DrinkTask()
     {
-        //move around aimlessly, more determinedness = moves longer in one direction 
-        
-    }
+        GameObject drinkingSpot = new GameObject();
 
-    public void FindMate()
-    {
-        bool targetGender = is_male ? false : true;
-
-        Vector3 worldPos = transform.position;
-
-        for (int x = 0; x < sight_radius; x++)
+        if (FindDrinkingSpot(ref drinkingSpot))
         {
-            for (int y = 0; y < sight_radius; y++)
+            Debug.Log(drinkingSpot.name);
+
+            GoToPosition(drinkingSpot.transform.position);
+
+            step = GOAPAction.Step.MOVING_TO_LOCATION;
+
+        }
+        else
+        {
+            activeTask.status = GOAPAction.Status.CANCELED;
+            planner.CancelTask();
+        }
+    }
+
+    bool FindDrinkingSpot(ref GameObject callback)
+    {
+        GameObject[] waters = GameObject.FindGameObjectsWithTag("Water");
+        GameObject nearestWater = new GameObject();
+        if (waters.Length > 0)
+        {
+            float dist = 10000f;
+            foreach (GameObject go in waters)
             {
-                // if grid at position x, y contains a potential mate, request a path to it
-                if (/*grid[x,y].Contains(targetGender)*/true)
+                if (Vector3.Distance(this.gameObject.transform.position, go.transform.position) < dist)
                 {
-                    // RequestPath(target);
+                    dist = Vector3.Distance(this.gameObject.transform.position, go.transform.position);
+                    nearestWater = go;
                 }
+            }
+
+            if (nearestWater.transform.childCount > 0 )
+            {
+                //See if spot occupied
+                callback = nearestWater.transform.GetChild(0).gameObject;
+                return true;
+                    
+            }
+            else
+            {
+                return false;
+            }
+        }
+        else
+        {
+            return false;
+        }
+    }
+
+    void GoToPosition(Vector3 pos)
+    {
+        agent.SetDestination(pos);
+        moving = true;
+    }
+
+    void UpdateMoving()
+    {
+        if (!agent.pathPending)
+        {
+            if (agent.remainingDistance <= agent.stoppingDistance)
+            {
+                if (!agent.hasPath || agent.velocity.sqrMagnitude == 0f)
+                {
+                     moving = false;
+                    step = GOAPAction.Step.AT_LOCATION;
+                }
+            }
+            else
+            {
+                moving = false;
             }
         }
     }
 
-    /// <summary>
-    /// Find food in sight_radius, request a path to food, eat
-    /// </summary>
-    public void FindFood()
+    void CheckTaskProgress()
     {
-        
-    }
-
-    /// <summary>
-    /// Find Deer to hunt in sight_radius, request a path to deer, eat
-    /// </summary>
-    public void Hunt()
-    {
-        Vector3 worldPos = transform.position;
-
-
-    }
-
-    /// <summary>
-    /// Find water in sight_radius, request a path to water, drink
-    /// </summary>
-    public void FindWater()
-    {
-
-
-
-    }
-
-    /// <summary>
-    /// What the creature does based on parameters
-    /// </summary>
-    /// <param name="type">0: Vegetarian, 1: Carnivore, 2: Both</param>
-    public void BehaviourTree(int type)
-    {
-        // if the creature has no hunger or thirst, try to reproduce
-        if (hunger < reproduction_urge && thirst < reproduction_urge)
+        if (activeTask.task == GOAPAction.Task.DRINK)
         {
-            // Find a mate to reproduce with
-            FindMate();
+            if (step == GOAPAction.Step.AT_LOCATION && !drinking)
+            {
+                Drink();
+            }
+        }
+    }
+
+    void Drink()
+    {
+        drinking = true;
+        while (thirst > 0)
+        {
+            thirst += 0.0001f * Time.deltaTime;
         }
 
-        if (hunger > reproduction_urge && type == 0 || type == 2)
-        {
-            // Find food to eat based on diet
-            FindFood();
-        }
-
-        if (hunger > reproduction_urge && type == 1)
-        {
-            Hunt();
-        }
-
-        if (thirst > reproduction_urge)
-        {
-            FindWater();
-        }
-        
+        //Done drinking
+        TaskCompleted();
+        drinking = false;
     }
 
-    /// <summary>
-    /// Kuole
-    /// </summary>
-    public void Die()
+    void TaskCompleted()
     {
-        //play some death animation? yes
-        print("die");
-        //deletes gameObject from scene
-        Destroy(gameObject);
+        activeTask.status = GOAPAction.Status.COMPLETE;
+        planner.TaskCompeleted();
     }
-    
+
+    //OLD CODE-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    //// get path to water/food?
+    //public void GetPathToTarget(Vector3 some_place)
+    //{
+
+    //}
+
+    //public void Wander()
+    //{
+    //    //move around aimlessly, more determinedness = moves longer in one direction 
+
+    //}
+
+    //public void FindMate()
+    //{
+    //    bool targetGender = is_male ? false : true;
+
+    //    Vector3 worldPos = transform.position;
+
+    //    for (int x = 0; x < sight_radius; x++)
+    //    {
+    //        for (int y = 0; y < sight_radius; y++)
+    //        {
+    //            // if grid at position x, y contains a potential mate, request a path to it
+    //            if (/*grid[x,y].Contains(targetGender)*/true)
+    //            {
+    //                // RequestPath(target);
+    //            }
+    //        }
+    //    }
+    //}
+
+    ///// <summary>
+    ///// Find food in sight_radius, request a path to food, eat
+    ///// </summary>
+    //public void FindFood()
+    //{
+
+    //}
+
+    ///// <summary>
+    ///// Find Deer to hunt in sight_radius, request a path to deer, eat
+    ///// </summary>
+    //public void Hunt()
+    //{
+    //    Vector3 worldPos = transform.position;
+
+
+    //}
+
+    ///// <summary>
+    ///// Find water in sight_radius, request a path to water, drink
+    ///// </summary>
+    //public void FindWater()
+    //{
+
+
+
+    //}
+
+    ///// <summary>
+    ///// What the creature does based on parameters
+    ///// </summary>
+    ///// <param name="type">0: Vegetarian, 1: Carnivore, 2: Both</param>
+    //public void BehaviourTree(int type)
+    //{
+    //    // if the creature has no hunger or thirst, try to reproduce
+    //    if (hunger < reproduction_urge && thirst < reproduction_urge)
+    //    {
+    //        // Find a mate to reproduce with
+    //        FindMate();
+    //    }
+
+    //    if (hunger > reproduction_urge && type == 0 || type == 2)
+    //    {
+    //        // Find food to eat based on diet
+    //        FindFood();
+    //    }
+
+    //    if (hunger > reproduction_urge && type == 1)
+    //    {
+    //        Hunt();
+    //    }
+
+    //    if (thirst > reproduction_urge)
+    //    {
+    //        FindWater();
+    //    }
+
+    //}
+
+    ///// <summary>
+    ///// Kuole
+    ///// </summary>
+    //public void Die()
+    //{
+    //    //play some death animation? yes
+    //    print("die");
+    //    //deletes gameObject from scene
+    //    Destroy(gameObject);
+    //}
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
     public float Age
     {
         get
